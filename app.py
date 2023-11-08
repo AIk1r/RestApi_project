@@ -83,18 +83,16 @@ async def list_notifications(request: Request):
 async def mark_notification_as_read(request: Request):
     data = await request.json()
     user_id = data.get("user_id")
-    notification_id = data.get("notification_id")  # Изменено на "id"
+    notification_id = data.get("notification_id")
     user = await db['users'].find_one({'_id': user_id})
     if not user:
         return {"success": False, "error": "User not found"}
 
-    # Find the notification with the given notification_id
     notification = notification = next(
         (n for n in user['notifications'] if n.get("notification_id") == notification_id), None)
     if not notification:
         return {"success": False, "error": "Notification not found"}
 
-    # Update the notification to mark it as read
     notification['is_new'] = False
     await db['users'].update_one({'_id': user['_id']}, {'$set': {'notifications': user['notifications'][:-1]}})
 
@@ -118,4 +116,4 @@ def send_email(to_email, notification):
 
 
 if __name__ == '__app__':
-    uvicorn.run(app, host='0.0.0.0', port=8000)
+    uvicorn.run(app, host='127.0.0.1', port=8000)
